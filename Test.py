@@ -7,6 +7,9 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import csv
 
+#Sources:
+#  https://towardsdatascience.com/tensorflow-sarcasm-detection-in-20-mins-b549311b9e91
+
 sentences = []
 labels = []
 
@@ -16,7 +19,7 @@ with open('data-test-balanced.csv', 'r') as file:
         labels.append(row[0])
         sentences.append(row[1])
 
-print(pd.DataFrame({'sentence' : sentences[0:10], 'label':labels[0:10]}))
+#print(pd.DataFrame({'sentence' : sentences[0:10], 'label':labels[0:10]}))
 
 
 # Splitting the dataset into Train and Test
@@ -27,7 +30,7 @@ training_labels = labels[0:training_size]
 testing_labels = labels[training_size:]
 #
 # Setting tokenizer properties
-vocab_size = 10000
+vocab_size = 50000
 oov_tok = "<oov>"
 
 # Fit the tokenizer on Training data
@@ -59,18 +62,19 @@ model.summary()
 
 # Converting the lists to numpy arrays for Tensorflow 2.x
 training_padded = np.array(training_padded)
-training_labels = np.array(training_labels)
+training_labels = np.array(training_labels, dtype='int32')
 testing_padded = np.array(testing_padded)
-testing_labels = np.array(testing_labels)
+testing_labels = np.array(testing_labels, dtype='int32')
 
-print(training_padded)
+print(training_padded.dtype)
+
 # # Training the model
-# num_epochs = 30
-# history = model.fit(training_padded, training_labels, epochs=num_epochs, validation_data=(testing_padded, testing_labels), verbose=2)
+num_epochs = 10
+history = model.fit(training_padded, training_labels, epochs=num_epochs, validation_data=(testing_padded, testing_labels), verbose=2)
 
 
-# sentence = ["Coworkers At Bathroom Sink Locked In Tense Standoff Over Who Going To Wash Hands Longer",
-#             "Spiking U.S. coronavirus cases could force rationing decisions similar to those made in Italy, China."]
-# sequences = tokenizer.texts_to_sequences(sentence)
-# padded = pad_sequences(sequences, maxlen=max_length, padding=padding_type, truncating=trunc_type)
-# print(model.predict(padded))
+sentence = ["Yes, definitely",
+            "I like cats."]
+sequences = tokenizer.texts_to_sequences(sentence)
+padded = pad_sequences(sequences, maxlen=max_length, padding=padding_type, truncating=trunc_type)
+print(model.predict(padded))
